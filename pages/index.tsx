@@ -1,5 +1,6 @@
 import HelloWorld from '../components/helloWorld'
 import { useState, useRef, useEffect } from 'react'
+import { UserButton } from '@clerk/nextjs'
 
 import { supabase } from '../lib/supabaseClient'
 export default function Home({ neighborhoods }) {
@@ -46,6 +47,12 @@ export default function Home({ neighborhoods }) {
 
   return (
     <div className={'flex flex-col pt-4 justify-center items-center'}>
+      <div className={'w-screen flex flex-row'}>
+        <div className={'grow'}></div>
+        <div className={'pr-4'}>
+          <UserButton />
+        </div>
+      </div>
       <HelloWorld />
       <ul className={'p-4 w-96'}>
         {hoods.map((hood: any) => (
