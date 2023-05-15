@@ -45,7 +45,7 @@ export default function Home({ neighborhoods }) {
   }
 
   return (
-    <div>
+    <div className={'flex flex-col pt-4 justify-center items-center'}>
       <HelloWorld />
       <ul className={'p-4 w-96'}>
         {hoods.map((hood: any) => (
@@ -58,13 +58,17 @@ export default function Home({ neighborhoods }) {
         ))}
       </ul>
       <div className={'p-4 flex flex-col w-96 bg-orange-200'}>
-        <div>new hood</div>
-        <input placeholder={'type new hood'} ref={inputRef}></input>{' '}
+        <div className={'p-2'}>Add neighborhood</div>
+        <input
+          className={'p-2'}
+          placeholder={'Enter neighborhood name'}
+          ref={inputRef}
+        ></input>{' '}
         <button
-          className={'bg-orange-500 my-4 hover:bg-orange-600'}
+          className={'bg-orange-500 my-4 p-2 text-white hover:bg-orange-600'}
           onClick={() => addNewHood()}
         >
-          add hood
+          Add Hood
         </button>
       </div>
     </div>
@@ -97,6 +101,7 @@ function Hood({ hood, handleDeleteHood, handleFetchHoods }: HoodProps) {
   useEffect(() => {
     updateHood()
   }, [name])
+
   return (
     <li className={'flex justify-between'} key={hood.id}>
       {editMode ? (
@@ -106,10 +111,10 @@ function Hood({ hood, handleDeleteHood, handleFetchHoods }: HoodProps) {
       )}
 
       <div
-        className={'cursor-pointer hover:text-red-500'}
+        className={'cursor-pointer text-transparent hover:text-red-500'}
         onClick={() => handleDeleteHood(hood.id)}
       >
-        delete
+        Delete
       </div>
     </li>
   )
