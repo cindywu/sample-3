@@ -49,7 +49,7 @@ export default function Home({ neighborhoods }) {
     <div className={'flex flex-col pt-4 justify-center items-center'}>
       <div className={'w-screen flex flex-row'}>
         <div className={'grow'}></div>
-        <div className={'pr-4'}>
+        <div className={'pr-8'}>
           <UserButton />
         </div>
       </div>
