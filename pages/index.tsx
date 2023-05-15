@@ -1,5 +1,5 @@
 import HelloWorld from '../components/helloWorld'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 import { supabase } from '../lib/supabaseClient'
 export default function Home({ neighborhoods }) {
@@ -10,12 +10,11 @@ export default function Home({ neighborhoods }) {
     try {
       const { data, error } = await supabase.from('neighborhoods').select()
       if (data) {
-        setHoods(data)
+        setHoods(data.sort((a, b) => a.id - b.id))
       }
     } catch (error) {
       console.log({ error })
     } finally {
-      console.log('hoods fetched')
     }
   }
 
@@ -49,16 +48,13 @@ export default function Home({ neighborhoods }) {
     <div>
       <HelloWorld />
       <ul className={'p-4 w-96'}>
-        {hoods.map((hood) => (
-          <li className={'flex justify-between'} key={hood.id}>
-            <div>{hood.name}</div>
-            <div
-              className={'cursor-pointer hover:text-red-500'}
-              onClick={() => deleteHood(hood.id)}
-            >
-              delete
-            </div>
-          </li>
+        {hoods.map((hood: any) => (
+          <Hood
+            key={hood.id}
+            hood={hood}
+            handleDeleteHood={deleteHood}
+            handleFetchHoods={fetchHoods}
+          />
         ))}
       </ul>
       <div className={'p-4 flex flex-col w-96 bg-orange-200'}>
@@ -75,12 +71,56 @@ export default function Home({ neighborhoods }) {
   )
 }
 
+type HoodProps = {
+  hood: any
+  handleDeleteHood: (hoodID: number) => void
+  handleFetchHoods: any
+}
+
+function Hood({ hood, handleDeleteHood, handleFetchHoods }: HoodProps) {
+  const [editMode, setEditMode] = useState<boolean>(false)
+  const [name, setName] = useState<string>(hood.name)
+
+  async function updateHood() {
+    try {
+      const { error } = await supabase
+        .from('neighborhoods')
+        .update({ name })
+        .eq('id', hood.id)
+    } catch (error) {
+      console.log({ error })
+    } finally {
+      handleFetchHoods()
+    }
+  }
+
+  useEffect(() => {
+    updateHood()
+  }, [name])
+  return (
+    <li className={'flex justify-between'} key={hood.id}>
+      {editMode ? (
+        <input value={name} onChange={(e) => setName(e.target.value)} />
+      ) : (
+        <div onClick={() => setEditMode(true)}>{hood.name}</div>
+      )}
+
+      <div
+        className={'cursor-pointer hover:text-red-500'}
+        onClick={() => handleDeleteHood(hood.id)}
+      >
+        delete
+      </div>
+    </li>
+  )
+}
+
 export async function getServerSideProps() {
   let { data } = await supabase.from('neighborhoods').select()
 
   return {
     props: {
-      neighborhoods: data,
+      neighborhoods: data.sort((a, b) => a.id - b.id),
     },
   }
 }
