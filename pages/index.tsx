@@ -1,29 +1,64 @@
 import HelloWorld from '../components/helloWorld'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useRef } from 'react'
 
 import { supabase } from '../lib/supabaseClient'
 export default function Home({ neighborhoods }) {
+  const [hoods, setHoods] = useState<any>(neighborhoods)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  async function addNewHood() {
+  async function fetchHoods() {
     try {
-      // create new neighborhood in db
-      const { error } = await supabase
-        .from('neighborhoods')
-        .insert({ name: inputRef.current.value }) // can we get away without including an id
+      const { data, error } = await supabase.from('neighborhoods').select()
+      if (data) {
+        setHoods(data)
+      }
     } catch (error) {
       console.log({ error })
     } finally {
-      alert('thing did a thing!')
+      console.log('hoods fetched')
+    }
+  }
+
+  async function addNewHood() {
+    try {
+      const { error } = await supabase
+        .from('neighborhoods')
+        .insert({ name: inputRef.current.value })
+    } catch (error) {
+      console.log({ error })
+    } finally {
+      fetchHoods()
+      inputRef.current.value = ''
+    }
+  }
+
+  async function deleteHood(hoodID: number) {
+    try {
+      const { error } = await supabase
+        .from('neighborhoods')
+        .delete()
+        .eq('id', hoodID)
+    } catch (error) {
+      console.log({ error })
+    } finally {
+      fetchHoods()
     }
   }
 
   return (
     <div>
       <HelloWorld />
-      <ul className={'p-4'}>
-        {neighborhoods.map((hood) => (
-          <li key={hood.id}>{hood.name}</li>
+      <ul className={'p-4 w-96'}>
+        {hoods.map((hood) => (
+          <li className={'flex justify-between'} key={hood.id}>
+            <div>{hood.name}</div>
+            <div
+              className={'cursor-pointer hover:text-red-500'}
+              onClick={() => deleteHood(hood.id)}
+            >
+              delete
+            </div>
+          </li>
         ))}
       </ul>
       <div className={'p-4 flex flex-col w-96 bg-orange-200'}>
